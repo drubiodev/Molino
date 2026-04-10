@@ -11,4 +11,9 @@
     <Folder Include="Models\" />
   </ItemGroup>
 
+    <ItemGroup>
+    <ProjectReference Include="..\Molino.Core\Molino.Core.csproj" />
+    <ProjectReference Include="..\Molino.Infrastructure\Molino.Infrastructure.csproj" />
+  </ItemGroup>
+
 </Project>

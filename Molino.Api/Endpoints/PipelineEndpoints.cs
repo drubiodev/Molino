@@ -1,4 +1,4 @@
-using Molino.Api.Models;
+using Molino.Core.Models;
 
 namespace Molino.Api.Endpoints;
 

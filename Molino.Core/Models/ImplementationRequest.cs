@@ -1,4 +1,4 @@
-namespace Molino.Api.Models;
+namespace Molino.Core.Models;
 
 public record class ImplementationRequest
 {
