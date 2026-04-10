@@ -1,13 +1,21 @@
+using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
+
 namespace Molino.Core.Models;
 
 public sealed record ExecutionRecord
 {
+  [JsonProperty("id")]
   public string Id { get; init; } = Guid.NewGuid().ToString();
+  [JsonProperty("workItemId")]
   public required int WorkItemId { get; init; }
-  public required string RepoName { get; init; }
-  public string? RequestedBy { get; init; }
+  // TODO: WILL FIGURE THIS OUT LATER
+  // public required string RepoName { get; init; }
+  // public string? RequestedBy { get; init; }
   public string? BranchName { get; init; }
+  [JsonConverter(typeof(StringEnumConverter))]
   public ExecutionStatus Status { get; init; } = ExecutionStatus.Queued;
+  [JsonConverter(typeof(StringEnumConverter))]
   public PipelineStep CurrentStep { get; init; } = PipelineStep.Queued;
   public string? FailureReason { get; init; }
   public string? PullRequestUrl { get; init; }
@@ -43,7 +51,9 @@ public enum PipelineStep
 
 public sealed record StepLog
 {
+  [JsonConverter(typeof(StringEnumConverter))]
   public required PipelineStep Step { get; init; }
+  [JsonConverter(typeof(StringEnumConverter))]
   public required StepOutcome Outcome { get; init; }
   public required DateTimeOffset StartedAt { get; init; }
   public required DateTimeOffset CompletedAt { get; init; }

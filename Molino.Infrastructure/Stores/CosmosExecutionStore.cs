@@ -9,21 +9,49 @@ namespace Molino.Infrastructure.Stores;
 public sealed class CosmosExecutionStore : IExecutionStore
 {
   private readonly CosmosClient _client;
-  private readonly Container _container;
+  private readonly CosmosDbConfig _config;
   private readonly ILogger<CosmosExecutionStore> _logger;
+  private Container? _container;
+  private readonly SemaphoreSlim _initLock = new(1, 1);
 
   public CosmosExecutionStore(IOptions<CosmosDbConfig> options, ILogger<CosmosExecutionStore> logger)
   {
     _logger = logger;
-    var opts = options.Value;
+    _config = options.Value;
+    _client = new CosmosClient(_config.Account, _config.Key);
+  }
 
-    _client = new CosmosClient(opts.Account, opts.Key);
-    _container = _client.GetContainer(opts.Database, opts.Container);
+  private async Task<Container> GetContainerAsync()
+  {
+    if (_container is not null)
+      return _container;
+
+    await _initLock.WaitAsync();
+    try
+    {
+      if (_container is not null)
+        return _container;
+
+      _logger.LogInformation("Initializing Cosmos DB database '{Database}' and container '{Container}'",
+          _config.Database, _config.Container);
+
+      var db = await _client.CreateDatabaseIfNotExistsAsync(_config.Database);
+      var container = await db.Database.CreateContainerIfNotExistsAsync(
+          _config.Container, _config.PartitionKeyPath);
+
+      _container = container.Container;
+      return _container;
+    }
+    finally
+    {
+      _initLock.Release();
+    }
   }
 
   public async Task<ExecutionRecord> CreateAsync(ExecutionRecord record, CancellationToken ct = default)
   {
-    var response = await _container.CreateItemAsync(record, new PartitionKey(record.WorkItemId.ToString()), cancellationToken: ct);
+    var container = await GetContainerAsync();
+    var response = await container.CreateItemAsync(record, new PartitionKey(record.WorkItemId), cancellationToken: ct);
     return response.Resource;
   }
 

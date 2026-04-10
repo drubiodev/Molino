@@ -1,0 +1,9 @@
+@host = http://localhost:5268
+
+### Create a new pipeline execution
+POST {{host}}/api/pipeline
+Content-Type: application/json
+
+{
+  "workItemId": 12345
+}

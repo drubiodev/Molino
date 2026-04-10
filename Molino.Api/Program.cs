@@ -1,3 +1,4 @@
+using Molino.Api.Endpoints;
 using Molino.Core.Configs;
 using Molino.Infrastructure.Stores;
 
@@ -12,5 +13,7 @@ builder.Services.AddSingleton<IExecutionStore, CosmosExecutionStore>();
 var app = builder.Build();
 
 app.MapGet("/", () => "Hello World!");
+
+app.MapPipelineEndpoints();
 
 app.Run();
