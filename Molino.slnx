@@ -1,0 +1,5 @@
+<Solution>
+  <Project Path="Molino.Api/Molino.Api.csproj" />
+  <Project Path="Molino.Core/Molino.Core.csproj" />
+  <Project Path="Molino.Infrastructure/Molino.Infrastructure.csproj" />
+</Solution>
