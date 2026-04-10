@@ -1,3 +1,4 @@
+using System.Threading.Channels;
 using Molino.Core.Models;
 using Molino.Infrastructure.Stores;
 
@@ -10,7 +11,7 @@ public static class PipelineEndpoints
     var group = app.MapGroup("/api/pipeline").WithTags("Pipeline");
 
     // POST /api/pipeline
-    group.MapPost("/", async (ImplementationRequest request, IExecutionStore store, CancellationToken ct) =>
+    group.MapPost("/", async (ImplementationRequest request, Channel<ImplementationRequest> channel, IExecutionStore store, CancellationToken ct) =>
     {
       // store record
       var record = await store.CreateAsync(new ExecutionRecord
@@ -20,7 +21,16 @@ public static class PipelineEndpoints
         CurrentStep = PipelineStep.Queued
       }, ct);
       // queue for processing
+      await channel.Writer.WriteAsync(request, ct);
       // return 202 Accepted with location header for status endpoint
+      return Results.Accepted($"/api/pipeline/{record.Id}", new
+      {
+        record.Id,
+        record.WorkItemId,
+        record.Status,
+        record.CurrentStep,
+        message = "Pipeline queued for processing"
+      });
     });
   }
 }
