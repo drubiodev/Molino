@@ -76,6 +76,24 @@ public sealed class CosmosExecutionStore : IExecutionStore
     throw new NotImplementedException();
   }
 
+  public async Task<ExecutionRecord?> UpdateStatusAsync(ImplementationRequest request, ExecutionStatus status, CancellationToken ct = default)
+  {
+    var record = await GetAsync(request, ct);
+    if (record is null)
+      return null;
+
+    return await UpdateAsync(record with { Status = status }, ct);
+  }
+
+  public async Task<ExecutionRecord?> UpdateStepAsync(ImplementationRequest request, PipelineStep step, CancellationToken ct = default)
+  {
+    var record = await GetAsync(request, ct);
+    if (record is null)
+      return null;
+
+    return await UpdateAsync(record with { CurrentStep = step }, ct);
+  }
+
   public async Task<ExecutionRecord> UpdateAsync(ExecutionRecord record, CancellationToken ct = default)
   {
     var container = await GetContainerAsync();

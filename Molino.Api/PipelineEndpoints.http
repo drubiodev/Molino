@@ -5,5 +5,5 @@ POST {{host}}/api/pipeline
 Content-Type: application/json
 
 {
-  "workItemId": 12345
+  "workItemId": 1
 }
