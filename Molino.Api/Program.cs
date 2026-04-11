@@ -14,6 +14,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Configuration.AddJsonFile("appsettings.Local.json", optional: true, reloadOnChange: true);
 
 // --- Configuration binding ---
+builder.Services.Configure<PipelineConfig>(builder.Configuration.GetSection("Pipeline"));
 builder.Services.Configure<CosmosDbConfig>(builder.Configuration.GetSection("CosmosDb"));
 builder.Services.Configure<AdoConfig>(builder.Configuration.GetSection("AzureDevOps"));
 
@@ -22,6 +23,7 @@ builder.Services.AddScoped<PipelineOrchestrator>();
 
 // --- Infrastructure services ---
 builder.Services.AddScoped<IWorkItemService, AdoService>();
+builder.Services.AddScoped<IGitService, GitService>();
 builder.Services.AddSingleton<IExecutionStore, CosmosExecutionStore>();
 
 // --- Background processing channel ---
