@@ -3,12 +3,17 @@ using Molino.Api.BackgroundServices;
 using Molino.Api.Endpoints;
 using Molino.Core.Configs;
 using Molino.Core.Models;
+using Molino.Core.Pipeline;
+using Molino.Core.Stores;
 using Molino.Infrastructure.Stores;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // --- Configuration binding ---
 builder.Services.Configure<CosmosDbConfig>(builder.Configuration.GetSection("CosmosDb"));
+
+// --- Core services ---
+builder.Services.AddScoped<PipelineOrchestrator>();
 
 // --- Infrastructure services ---
 builder.Services.AddSingleton<IExecutionStore, CosmosExecutionStore>();

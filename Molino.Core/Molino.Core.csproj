@@ -8,10 +8,12 @@
 
   <ItemGroup>
     <Folder Include="Configs\" />
+    <Folder Include="Pipeline\" />
   </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
+        <PackageReference Include="Microsoft.Extensions.Logging" Version="10.0.5" />
   </ItemGroup>
 
 </Project>

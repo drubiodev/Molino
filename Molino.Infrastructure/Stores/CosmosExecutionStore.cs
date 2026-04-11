@@ -3,6 +3,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Molino.Core.Configs;
 using Molino.Core.Models;
+using Molino.Core.Stores;
 
 namespace Molino.Infrastructure.Stores;
 
@@ -55,9 +56,19 @@ public sealed class CosmosExecutionStore : IExecutionStore
     return response.Resource;
   }
 
-  public Task<ExecutionRecord?> GetAsync(string id, CancellationToken ct = default)
+  public async Task<ExecutionRecord?> GetAsync(ImplementationRequest request, CancellationToken ct = default)
   {
-    throw new NotImplementedException();
+    var container = await GetContainerAsync();
+
+    try
+    {
+      var response = await container.ReadItemAsync<ExecutionRecord>(request.ExecutionId, new PartitionKey(request.WorkItemId), cancellationToken: ct);
+      return response.Resource;
+    }
+    catch (CosmosException ex) when (ex.StatusCode == System.Net.HttpStatusCode.NotFound)
+    {
+      return null;
+    }
   }
 
   public Task<IReadOnlyList<ExecutionRecord>> GetByWorkItemAsync(int workItemId, CancellationToken ct = default)
@@ -65,8 +76,10 @@ public sealed class CosmosExecutionStore : IExecutionStore
     throw new NotImplementedException();
   }
 
-  public Task<ExecutionRecord> UpdateAsync(ExecutionRecord record, CancellationToken ct = default)
+  public async Task<ExecutionRecord> UpdateAsync(ExecutionRecord record, CancellationToken ct = default)
   {
-    throw new NotImplementedException();
+    var container = await GetContainerAsync();
+    var response = await container.UpsertItemAsync(record, new PartitionKey(record.WorkItemId), cancellationToken: ct);
+    return response.Resource;
   }
 }

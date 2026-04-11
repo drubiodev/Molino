@@ -1,6 +1,6 @@
 using System.Threading.Channels;
 using Molino.Core.Models;
-using Molino.Infrastructure.Stores;
+using Molino.Core.Stores;
 
 namespace Molino.Api.Endpoints;
 
@@ -20,8 +20,10 @@ public static class PipelineEndpoints
         Status = ExecutionStatus.Queued,
         CurrentStep = PipelineStep.Queued
       }, ct);
+
       // queue for processing
-      await channel.Writer.WriteAsync(request, ct);
+      await channel.Writer.WriteAsync(request with { ExecutionId = record.Id }, ct);
+
       // return 202 Accepted with location header for status endpoint
       return Results.Accepted($"/api/pipeline/{record.Id}", new
       {
