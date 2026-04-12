@@ -49,6 +49,8 @@ public sealed class PipelineOrchestrator(ILogger<PipelineOrchestrator> _logger, 
     _logger.LogInformation("Spec generated for WI#{WorkItemId} — spec={SpecLen} chars, plan={PlanLen} chars, tasks={TasksLen} chars",
       request.WorkItemId, specResult.SpecContent.Length, specResult.PlanContent.Length, specResult.TasksContent.Length);
 
-    // Step4: Implement (Copilot SDK — TODO)
+    // Step4: Implement
+    await _store.UpdateStepAsync(request, PipelineStep.Implementing, ct);
+    _logger.LogInformation("Implementing solution for WI#{WorkItemId}", request.WorkItemId);
   }
 }

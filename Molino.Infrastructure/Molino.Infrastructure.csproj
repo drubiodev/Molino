@@ -6,6 +6,7 @@
 
   <ItemGroup>
     <PackageReference Include="Azure.AI.Projects" Version="2.0.0" />
+    <PackageReference Include="GitHub.Copilot.SDK" Version="0.2.2" />
     <PackageReference Include="Microsoft.Agents.AI.Foundry" Version="1.1.0" />
     <PackageReference Include="Microsoft.Azure.Cosmos" Version="3.58.0" />
     <PackageReference Include="Microsoft.Extensions.Logging" Version="10.0.5" />
