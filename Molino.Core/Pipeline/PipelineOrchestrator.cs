@@ -7,7 +7,7 @@ using Molino.Core.Stores;
 
 namespace Molino.Core.Pipeline;
 
-public sealed class PipelineOrchestrator(ILogger<PipelineOrchestrator> _logger, IExecutionStore _store, IWorkItemService _workItems, IGitService _git, ISpecService _specService, IOptions<PipelineConfig> _pipelineOptions)
+public sealed class PipelineOrchestrator(ILogger<PipelineOrchestrator> _logger, IExecutionStore _store, IWorkItemService _workItems, IGitService _git, ISpecService _specService, ICopilotService _copilot, IOptions<PipelineConfig> _pipelineOptions)
 {
   public async Task ExecuteAsync(ImplementationRequest request, CancellationToken ct)
   {
@@ -52,5 +52,18 @@ public sealed class PipelineOrchestrator(ILogger<PipelineOrchestrator> _logger, 
     // Step4: Implement
     await _store.UpdateStepAsync(request, PipelineStep.Implementing, ct);
     _logger.LogInformation("Implementing solution for WI#{WorkItemId}", request.WorkItemId);
+
+    var systemPrompt = specResult.PlanContent;
+    var taskPrompt = specResult.TasksContent;
+
+    var implResult = await _copilot.ImplementAsync(workDir, systemPrompt, taskPrompt, ct);
+
+    if (!implResult.Success)
+    {
+      _logger.LogError("Implementation failed for WI#{WorkItemId}: {Error}", request.WorkItemId, implResult.ErrorOutput);
+      throw new InvalidOperationException($"Implementation failed: {implResult.ErrorOutput}");
+    }
+
+    _logger.LogInformation("Implementation completed for WI#{WorkItemId}", request.WorkItemId);
   }
 }

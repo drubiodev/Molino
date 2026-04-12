@@ -28,6 +28,7 @@ builder.Services.AddScoped<IGitService, GitService>();
 builder.Services.AddSingleton<IExecutionStore, CosmosExecutionStore>();
 builder.Services.AddSingleton<ILlmService, LlmService>();
 builder.Services.AddScoped<ISpecService, SpecService>();
+builder.Services.AddScoped<ICopilotService, CopilotService>();
 
 // --- Background processing channel ---
 var channel = Channel.CreateBounded<ImplementationRequest>(new BoundedChannelOptions(50)
