@@ -41,6 +41,7 @@ public enum PipelineStep
   Queued,
   FetchingWorkItem,
   CloningRepo,
+  GeneratingSpec,
   Implementing,
   Validating,
   RetryingImplementation,

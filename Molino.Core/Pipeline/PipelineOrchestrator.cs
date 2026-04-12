@@ -7,7 +7,7 @@ using Molino.Core.Stores;
 
 namespace Molino.Core.Pipeline;
 
-public sealed class PipelineOrchestrator(ILogger<PipelineOrchestrator> _logger, IExecutionStore _store, IWorkItemService _workItems, IGitService _git, IOptions<PipelineConfig> _pipelineOptions)
+public sealed class PipelineOrchestrator(ILogger<PipelineOrchestrator> _logger, IExecutionStore _store, IWorkItemService _workItems, IGitService _git, ISpecService _specService, IOptions<PipelineConfig> _pipelineOptions)
 {
   public async Task ExecuteAsync(ImplementationRequest request, CancellationToken ct)
   {
@@ -42,5 +42,13 @@ public sealed class PipelineOrchestrator(ILogger<PipelineOrchestrator> _logger, 
 
     await Task.WhenAll(cloneTasks);
     // Step3: Generate a spec
+    await _store.UpdateStepAsync(request, PipelineStep.GeneratingSpec, ct);
+    _logger.LogInformation("Generating spec for WI#{WorkItemId}", request.WorkItemId);
+
+    var specResult = await _specService.GenerateAsync(workItem, workDir, ct);
+    _logger.LogInformation("Spec generated for WI#{WorkItemId} — spec={SpecLen} chars, plan={PlanLen} chars, tasks={TasksLen} chars",
+      request.WorkItemId, specResult.SpecContent.Length, specResult.PlanContent.Length, specResult.TasksContent.Length);
+
+    // Step4: Implement (Copilot SDK — TODO)
   }
 }
